@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复习题生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .question-area {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>复习题生成器</h1>
+        <input type="file" id="fileInput">
+        <br><br>
+        <button onclick="generateQuestions()">生成选择题</button>
+        <button onclick="generateFillInTheBlanks()">生成填空题</button>
+        <div class="question-area" id="questionArea"></div>
+    </div>
+    <script>
+        function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsText(file);
+            });
+        }
+
+        async function generateQuestions() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert('请先上传一个文件');
+                return;
+            }
+
+            const text = await readFile(fileInput.files[0]);
+            const questionArea = document.getElementById('questionArea');
+            questionArea.innerHTML = createMultipleChoiceQuestions(text);
+        }
+
+        function createMultipleChoiceQuestions(text) {
+            const sentences = text.split('.').filter(Boolean);
+            let questions = '';
+            sentences.forEach((sentence, index) => {
+                questions += `<p>问题 ${index + 1}: ${sentence}</p>`;
+                questions += `<p>A. 选项1</p><p>B. 选项2</p><p>C. 选项3</p><p>D. 选项4</p><hr>`;
+            });
+            return questions;
+        }
+
+        async function generateFillInTheBlanks() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) {
+                alert('请先上传一个文件');
+                return;
+            }
+
+            const text = await readFile(fileInput.files[0]);
+            const questionArea = document.getElementById('questionArea');
+            questionArea.innerHTML = createFillInTheBlanksQuestions(text);
+        }
+
+        function createFillInTheBlanksQuestions(text) {
+            const words = text.split(' ');
+            let questions = text;
+            for (let i = 0; i < 5; i++) {
+                const randomIndex = Math.floor(Math.random() * words.length);
+                questions = questions.replace(words[randomIndex], '____');
+            }
+            return `<p>${questions}</p>`;
+        }
+    </script>
+</body>
+</html>
